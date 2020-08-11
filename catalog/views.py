@@ -14,7 +14,6 @@ import datetime
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 
-
 @login_required
 def index(request):
     """View function for home page of site."""
@@ -50,16 +49,16 @@ class BookListView(PermissionRequiredMixin,generic.ListView):
     # Or multiple permissions
     permission_required = ('catalog.can_mark_returned', 'catalog.can_edit')
     model = Book
-    paginate_by = 2
+    paginate_by = 10
 class BookDetailView(LoginRequiredMixin,generic.DetailView):
     model = Book
 
 def book_detail_view(request, primary_key):
     book = get_object_or_404(Book, pk=primary_key)
     return render(request, 'catalog/book_detail.html', context={'book': book})
-class AuthorsListView(LoginRequiredMixin,generic.ListView):
+class AuthorsListView(generic.ListView):
     model = Author
-    paginate_by = 2
+    paginate_by = 10
 class AuthorsDetailView(LoginRequiredMixin,generic.DetailView):
     model = Author
 def authors_detail_view(request, primary_key):
@@ -111,10 +110,11 @@ def renew_book_librarian(request, pk):
     }
 
     return render(request, 'catalog/book_renew_librarian.html', context)
-class AuthorCreate(CreateView):
+class AuthorCreate(PermissionRequiredMixin,CreateView):
     model = Author
     fields = '__all__'
     initial = {'date_of_death': '05/01/2018'}
+    permission_required = 'catalog.can_mark_returned'
 
 class AuthorUpdate(UpdateView):
     model = Author
